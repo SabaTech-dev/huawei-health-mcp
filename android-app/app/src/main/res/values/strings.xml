@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">MyHealthWatcher</string>
+    <string name="title_home">MyHealthWatcher</string>
+    <string name="authorize_button">Autorizar con Huawei Health</string>
+    <string name="authorizing">Autorizando…</string>
+    <string name="success">¡Autorización exitosa!</string>
+    <string name="error">Error: %s</string>
+    <string name="retry">Reintentar</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Configuración</string>
+    <string name="settings_backend_label">URL del Backend</string>
+    <string name="settings_backend_hint">https://tu-backend.com/api/v1/auth/callback</string>
+    <string name="settings_info_label">Información de la App</string>
+    <string name="settings_client_id_label">OAuth Client ID:</string>
+    <string name="settings_app_id_label">App ID:</string>
+    <string name="settings_save_button">Guardar</string>
+    <string name="settings_reset_button">Restablecer</string>
+    <string name="settings_saved">Configuración guardada</string>
+    <string name="settings_reset">Restablecido al valor por defecto</string>
+    <string name="error_empty_url">La URL no puede estar vacía</string>
+</resources>

@@ -1,0 +1,29 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+*.apk
+*.aab
+*.ap_
+*.aab.metadata
+
+# Android Profiling
+*.hprof
+
+# Keystore files
+*.jks
+*.keystore
+
+# But keep agconnect-services.json
+!app/agconnect-services.json
