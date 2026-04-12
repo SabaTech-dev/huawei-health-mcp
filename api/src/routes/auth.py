@@ -18,6 +18,16 @@ class AuthorizeResponse(BaseModel):
     state: str | None = None
 
 
+class OAuthCallbackRequest(BaseModel):
+    """Request model for OAuth callback (POST variant)."""
+    code: str
+
+
+class RefreshTokenRequest(BaseModel):
+    """Request model for token refresh."""
+    refresh_token: str
+
+
 @router.get("/authorize", response_model=AuthorizeResponse)
 async def get_authorize_url(
     state: str | None = None,

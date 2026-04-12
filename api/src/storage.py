@@ -146,7 +146,6 @@ class Storage:
             data: Data to cache
             ttl_seconds: Time to live in seconds
         """
-        expires_at = datetime.utcnow().isoformat()  # Simplified, should add ttl
         await self._db.execute(
             """
             INSERT OR REPLACE INTO health_cache (data_type, date, data_json, expires_at)

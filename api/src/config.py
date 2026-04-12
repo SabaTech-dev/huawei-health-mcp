@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     huawei_scope: str = "https://www.huawei.com/healthkit"
     
     # Database settings
-    database_url: str = "sqlite+aiosqlite:///./data/health_data.db"
+    database_url: str = "sqlite+aiosqlite:////data/huawei-health/health_data.db"
     
     # API authentication
     api_token: Optional[str] = None

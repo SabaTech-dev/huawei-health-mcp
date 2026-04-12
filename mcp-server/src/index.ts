@@ -9,7 +9,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 // Backend API URL (configured via env)
-const API_URL = process.env.API_URL || "http://localhost:8080";
+const API_URL = process.env.API_URL || "http://localhost:8081";
 
 /**
  * Helper to call our backend API
@@ -18,7 +18,7 @@ async function callApi<T>(endpoint: string, params?: Record<string, unknown>): P
   const url = new URL(`${API_URL}${endpoint}`);
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
-      if (v !== undefined) url.searchParams.set(k, String(v));
+      if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
     });
   }
   const res = await fetch(url.toString(), {
@@ -28,7 +28,8 @@ async function callApi<T>(endpoint: string, params?: Record<string, unknown>): P
     },
   });
   if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
+    const errorText = await res.text().catch(() => res.statusText);
+    throw new Error(`API error: ${res.status} ${res.statusText} — ${errorText}`);
   }
   return res.json() as Promise<T>;
 }
@@ -36,19 +37,33 @@ async function callApi<T>(endpoint: string, params?: Record<string, unknown>): P
 // Create MCP Server
 const server = new McpServer({
   name: "huawei-health",
-  version: "0.1.0",
+  version: "0.2.0",
 });
 
-// Empty schema for tools with no parameters
-const emptySchema = {};
+// Common schemas
+const dateParam = {
+  date: z.string().optional().describe("Date in YYYY-MM-DD format. Defaults to today."),
+};
+
+const periodParam = {
+  ...dateParam,
+  period: z.enum(["daily", "weekly"]).optional().describe("Period: daily or weekly."),
+};
 
 // --- Tool 1: Heart Rate ---
 server.tool(
   "get_heart_rate",
-  "Get heart rate data from Huawei Health. Returns instantaneous, continuous, resting, and exercise heart rate data.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/heart-rate", {});
+  "Get heart rate data from Huawei Health. Returns instantaneous, continuous, resting, and exercise heart rate data for a given date.",
+  {
+    ...dateParam,
+    type: z.enum(["instantaneous", "continuous", "resting", "exercise", "all"]).optional()
+      .describe("Type of heart rate data. Defaults to all."),
+  },
+  async ({ date, type }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    if (type) params.type = type;
+    const data = await callApi("/api/v1/heart-rate", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -59,9 +74,11 @@ server.tool(
 server.tool(
   "get_sleep_data",
   "Get sleep analysis from Huawei Health. Includes sleep phases (deep, light, REM), duration, quality score, and apnea events.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/sleep", {});
+  dateParam,
+  async ({ date }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    const data = await callApi("/api/v1/sleep", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -71,10 +88,12 @@ server.tool(
 // --- Tool 3: SpO2 ---
 server.tool(
   "get_spo2",
-  "Get blood oxygen saturation (SpO2) data from Huawei Health.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/spo2", {});
+  "Get blood oxygen saturation (SpO2) data from Huawei Health for a given date.",
+  dateParam,
+  async ({ date }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    const data = await callApi("/api/v1/spo2", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -85,9 +104,11 @@ server.tool(
 server.tool(
   "get_steps",
   "Get daily step count, distance, and calories from Huawei Health.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/steps", {});
+  dateParam,
+  async ({ date }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    const data = await callApi("/api/v1/steps", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -97,10 +118,12 @@ server.tool(
 // --- Tool 5: Stress ---
 server.tool(
   "get_stress",
-  "Get stress levels and trends from Huawei Health.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/stress", {});
+  "Get stress levels and trends from Huawei Health for a given date.",
+  dateParam,
+  async ({ date }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    const data = await callApi("/api/v1/stress", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -111,9 +134,11 @@ server.tool(
 server.tool(
   "get_temperature",
   "Get skin temperature readings from Huawei Health Watch GT 5 Pro.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/temperature", {});
+  dateParam,
+  async ({ date }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    const data = await callApi("/api/v1/temperature", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -124,9 +149,11 @@ server.tool(
 server.tool(
   "get_ecg",
   "Get ECG analysis results from Huawei Health. Results can be normal, sinus rhythm with premature beats, or atrial fibrillation.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/ecg", {});
+  dateParam,
+  async ({ date }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    const data = await callApi("/api/v1/ecg", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -137,9 +164,17 @@ server.tool(
 server.tool(
   "get_workout_history",
   "Get workout and exercise history from Huawei Health. Supports 100+ workout types including running, cycling, swimming, golf, and more.",
-  emptySchema,
-  async () => {
-    const data = await callApi("/api/v1/workouts", {});
+  {
+    ...dateParam,
+    workout_type: z.string().optional().describe("Filter by workout type (e.g., running, cycling, swimming)."),
+    limit: z.number().min(1).max(50).optional().describe("Max number of results. Defaults to 10."),
+  },
+  async ({ date, workout_type, limit }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    if (workout_type) params.workout_type = workout_type;
+    if (limit) params.limit = limit;
+    const data = await callApi("/api/v1/workouts", params);
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -150,9 +185,25 @@ server.tool(
 server.tool(
   "get_health_summary",
   "Get comprehensive daily or weekly health summary combining heart rate, sleep, steps, SpO2, stress, and temperature data.",
-  emptySchema,
+  periodParam,
+  async ({ date, period }) => {
+    const params: Record<string, unknown> = {};
+    if (date) params.date = date;
+    if (period) params.period = period;
+    const data = await callApi("/api/v1/summary", params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    };
+  }
+);
+
+// --- Tool 10: Auth Status ---
+server.tool(
+  "get_auth_status",
+  "Check if the Huawei Health API is currently authenticated and ready to serve data.",
+  {},
   async () => {
-    const data = await callApi("/api/v1/summary", {});
+    const data = await callApi("/api/v1/auth/status", {});
     return {
       content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
     };
@@ -164,7 +215,8 @@ server.tool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Huawei Health MCP Server running on stdio");
+  console.error("Huawei Health MCP Server v0.2.0 running on stdio");
+  console.error(`Backend API: ${API_URL}`);
 }
 
 main().catch((error) => {
