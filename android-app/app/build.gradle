@@ -29,7 +29,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "BACKEND_URL", "\"https://your-backend.com/api/v1/auth/callback\""
+            buildConfigField "String", "BACKEND_URL", "\"https://huawei-api.sabatech.dev/api/v1/auth/callback\""
         }
     }
 
