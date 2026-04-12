@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         // Show current backend URL in status
         val app = application as MyHealthWatcherApp
-        statusTextView.text = "Backend: ${app.getBackendUrl()}"
+        statusTextView.text = "Backend: ${app.backendUrl}"
     }
 
     private fun startAuthorization() {
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                 authorizeButton.isEnabled = true
                 if (statusTextView.text == getString(R.string.authorizing)) {
                     val app = application as MyHealthWatcherApp
-                    statusTextView.text = "Backend: ${app.getBackendUrl()}"
+                    statusTextView.text = "Backend: ${app.backendUrl}"
                 }
 
             } catch (e: Exception) {

@@ -35,7 +35,7 @@ class SettingsActivity : AppCompatActivity() {
         resetButton = findViewById(R.id.resetButton)
 
         // Populate current values
-        backendUrlEditText.setText(app.getBackendUrl())
+        backendUrlEditText.setText(app.backendUrl)
         clientIdTextView.text = MyHealthWatcherApp.OAUTH_CLIENT_ID
         appIdTextView.text = MyHealthWatcherApp.APP_ID
 

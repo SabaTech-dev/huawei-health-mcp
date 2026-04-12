@@ -29,7 +29,7 @@ class AuthManager(private val context: Context) {
 
     // Backend URL from Application class (configurable)
     private val backendUrl: String
-        get() = MyHealthWatcherApp.backendUrl
+        get() = (context.applicationContext as MyHealthWatcherApp).backendUrl
 
     private val client: OkHttpClient
     private val gson = Gson()

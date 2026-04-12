@@ -64,8 +64,4 @@ class MyHealthWatcherApp : Application() {
             .apply()
     }
 
-    /**
-     * Get the current backend URL.
-     */
-    fun getBackendUrl(): String = backendUrl
 }
