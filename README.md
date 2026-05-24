@@ -79,7 +79,7 @@ huawei-health-mcp/
 
 1. **Clone and setup:**
 ```bash
-git clone https://github.com/llllJokerllll/huawei-health-mcp.git
+git clone https://github.com/sabatech-dev/huawei-health-mcp.git
 cd huawei-health-mcp
 ```
 
@@ -146,7 +146,7 @@ Contributions welcome! This is a new project. See [CONTRIBUTING.md](CONTRIBUTING
 
 ## 🙏 Credits
 
-Built with ❤️ by [Joker Industries](https://github.com/llllJokerllll) — Powered by [OpenClaw](https://github.com/openclaw/openclaw)
+Built with ❤️ by [SabaTech Industries](https://github.com/sabatech-dev) — Powered by [OpenClaw](https://github.com/openclaw/openclaw)
 
 ---
 
