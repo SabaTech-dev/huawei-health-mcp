@@ -1,12 +1,10 @@
 package com.saba.myhealthwatcher
 
 import android.app.Application
-import com.huawei.agconnect.AGConnectInstance
-import com.huawei.hms.api.HuaweiApiAvailability
 
 /**
  * Application class for MyHealthWatcher.
- * Initializes Huawei AGConnect services.
+ * Minimal — no Huawei SDK dependencies.
  */
 class MyHealthWatcherApp : Application() {
 
@@ -15,7 +13,7 @@ class MyHealthWatcherApp : Application() {
         const val PREFS_NAME = "myhealthwatcher_prefs"
         const val PREF_BACKEND_URL = "backend_url"
 
-        // OAuth credentials from agconnect-services.json
+        // OAuth credentials (from Huawei Developer Console)
         const val OAUTH_CLIENT_ID = "1917539503149440256"
         const val APP_ID = "117266467"
     }
@@ -25,14 +23,6 @@ class MyHealthWatcherApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
-        // Initialize Huawei AGConnect (reads agconnect-services.json automatically)
-        try {
-            AGConnectInstance.initialize(this)
-            HuaweiApiAvailability.getInstance().isHuaweiMobileServicesAvailable(this)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
 
         // Load backend URL from SharedPreferences (overrides BuildConfig default)
         val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
@@ -63,5 +53,4 @@ class MyHealthWatcherApp : Application() {
             .remove(PREF_BACKEND_URL)
             .apply()
     }
-
 }
