@@ -15,3 +15,4 @@ build/
 *.iml
 local.properties
 .env
+api/.env.production
