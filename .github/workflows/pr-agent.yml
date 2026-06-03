@@ -1,0 +1,33 @@
+name: PR Agent — Code Review (Qwen Local)
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+  issue_comment:
+    types: [created]
+
+jobs:
+  pr_agent:
+    if: ${{ github.event.sender.type != 'Bot' }}
+    runs-on: [self-hosted, linux, x64, jokerserver]
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+    steps:
+      - name: PR Agent (Code Review)
+        id: pragent
+        uses: the-pr-agent/pr-agent@main
+        env:
+          OPENAI__API_BASE: http://192.168.1.39:8001/v1
+          OPENAI__KEY: *** secrets.LLAMA_API_KEY }}
+          GITHUB_TOKEN: *** secrets.JOKERSERVER_PAT }}
+          config.model: mi-abiray-qwen36-35b-a3b-heretic-q4km
+          config.fallback_models: '["mi-abiray-qwen36-35b-a3b-heretic-q4km"]'
+          config.model_turbo: mi-abiray-qwen36-35b-a3b-heretic-q4km
+          config.custom_model_max_tokens: 128000
+          config.duplicate_examples: "true"
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "false"
+          pr_reviewer.num_code_suggestions: 4
