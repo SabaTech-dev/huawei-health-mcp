@@ -13,15 +13,15 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
-      contents: write
+      contents: read
     steps:
       - name: PR Agent (Code Review)
         id: pragent
-        uses: the-pr-agent/pr-agent@main
+        uses: the-pr-agent/pr-agent@ffe1f89a4dafc7d8e88b9cf010a3233e30b49f43
         env:
           OPENAI__API_BASE: http://192.168.1.39:8001/v1
           OPENAI__KEY: *** secrets.LLAMA_API_KEY }}
-          GITHUB_TOKEN: *** secrets.JOKERSERVER_PAT }}
+          GITHUB_TOKEN: *** secrets.GITHUB_TOKEN }}
           config.model: mi-abiray-qwen36-35b-a3b-heretic-q4km
           config.fallback_models: '["mi-abiray-qwen36-35b-a3b-heretic-q4km"]'
           config.model_turbo: mi-abiray-qwen36-35b-a3b-heretic-q4km
