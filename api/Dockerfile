@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Card 3a64f98b (17-sep): apt upgrade → deb13u1 — limpia perl CRIT CVE-2026-13221/42496/8376 (SBOM 16-sep)
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Install dependencies
@@ -24,3 +27,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # Run
 CMD ["sh", "-c", "if [ -f .env.production ]; then export $(grep -v '^#' .env.production | xargs); fi && uvicorn src.main:app --host 0.0.0.0 --port 8080"]
+
+# Protected from Coolify DockerCleanupJob (incident run 105, 18-sep — GO Joker (a))
+LABEL coolify.managed=true
