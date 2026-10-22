@@ -98,7 +98,7 @@ pip install -r requirements.txt
 uvicorn src.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`
+The API will be available at `http://localhost:8080` (check `http://localhost:8080/api/v1/health`)
 
 ### Docker Deployment
 
@@ -111,8 +111,27 @@ docker-compose up -d
 
 ```bash
 cd mcp-server
-npm install
+npm install        # use NODE_ENV=development to include devDependencies
 npm run build
+```
+
+Configure the backend connection via environment variables:
+
+- `API_URL` — backend base URL (default `http://localhost:8081`)
+- `API_TOKEN` — bearer token if the backend enforces `API_TOKEN` auth
+
+Example `claude_desktop_config.json` / OpenClaw MCP config:
+
+```json
+{
+  "mcpServers": {
+    "huawei-health": {
+      "command": "node",
+      "args": ["/path/to/mcp-server/dist/index.js"],
+      "env": { "API_URL": "http://localhost:8081" }
+    }
+  }
+}
 ```
 
 ### MCP Tools
@@ -128,11 +147,13 @@ npm run build
 | `get_health_summary` | Get comprehensive daily/weekly health summary |
 | `get_workout_history` | Get exercise and workout data |
 | `get_ecg` | Get ECG analysis results |
+| `get_auth_status` | Check Huawei API authentication status |
 
 ## 🔐 Security
 
 - All data stays on **your** server
-- OAuth 2.0 authorization flow
+- OAuth 2.0 authorization flow (authorization code + refresh, bounded token-endpoint timeouts)
+- Outbound Huawei API calls: rate limited, with bounded retries on 429/5xx
 - No third-party data storage
 - User consent required for each data type
 
@@ -154,8 +175,9 @@ Built with ❤️ by [SabaTech Industries](https://github.com/sabatech-dev) — 
 
 - ✅ **Backend API (FastAPI)** - Fully implemented with all endpoints
 - ✅ **MCP Server (TypeScript)** - All 9 tools defined, compiles successfully
-- ✅ **Docker Support** - Ready for deployment
-- ✅ **Test Suite** - 80% pass rate with mocked Huawei API
+- ✅ **Docker Support** - Multi-stage build, non-root runtime, healthcheck
+- ✅ **Test Suite** - 60 tests passing, 86% coverage on `api/src` (`pytest --cov`)
+- ✅ **MCP Compliance** - Audited against the MCP spec: see [docs/mcp-compliance.md](docs/mcp-compliance.md)
 - ⏳ **Huawei Developer Verification** - Pending (can't test real API yet)
 - ⏳ **Android OAuth Bridge** - Coming soon
 
