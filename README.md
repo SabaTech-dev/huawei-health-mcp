@@ -134,6 +134,18 @@ Example `claude_desktop_config.json` / OpenClaw MCP config:
 }
 ```
 
+#### Streamable HTTP transport (optional)
+
+Besides stdio (the default), the MCP server exposes a Streamable HTTP endpoint per the MCP spec (`POST/GET/DELETE /mcp`, SSE responses, sessions via the `mcp-session-id` header). Enable it with `MCP_HTTP=1`:
+
+```bash
+cd mcp-server
+npm run build
+MCP_HTTP=1 MCP_HTTP_PORT=3001 node dist/index.js
+```
+
+Point an MCP HTTP client at `http://127.0.0.1:3001/mcp`. Extra env vars: `MCP_HTTP_HOST` (default `127.0.0.1`), `MCP_HTTP_PORT` (default `3001`), `LOG_LEVEL` (`debug|info|warn|error`).
+
 ### MCP Tools
 
 | Tool | Description |

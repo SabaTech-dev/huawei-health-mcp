@@ -1,15 +1,15 @@
 # MCP Compliance Audit — huawei-health mcp-server
 
-**Date:** 2026-10-22
+**Date:** 2026-10-22 (updated 2026-10-23, v0.4.0)
 **Audited against:** MCP Specification revision `2026-07-28` (modelcontextprotocol.io) plus best-practices guide (modelcontextprotocol.info).
-**Audited component:** `mcp-server/` (TypeScript, `@modelcontextprotocol/sdk` 1.32.1, zod 4.x, stdio transport).
-**Result: compliant for its scope (stdio tool server), with 3 recommendations.**
+**Audited component:** `mcp-server/` (TypeScript, `@modelcontextprotocol/sdk` 1.32.1, zod 4.x, stdio + Streamable HTTP transports).
+**Result: compliant for its scope, with 3 recommendations (R1 open; R2 and R3 DONE in v0.4.0).**
 
 ## 1. Protocol version & lifecycle
 
 | Item | Status | Evidence |
 |---|---|---|
-| Initialize handshake | ✅ | SDK-managed; smoke test returns `protocolVersion: 2025-06-18`, `serverInfo {name: huawei-health, version: 0.3.0}` |
+| Initialize handshake | ✅ | SDK-managed; smoke test returns `protocolVersion: 2025-06-18`, `serverInfo {name: huawei-health, version: 0.4.0}` |
 | Capabilities declared | ✅ | `tools: {listChanged: true}` only — matches the server's actual feature set (no resources/prompts declared, none offered) |
 | Spec revision `2026-07-28` | ⚠️ | SDK 1.32.1 negotiates `2025-06-18`. Version negotiation is spec-correct (client/server agree on the newest shared revision), but the newest spec features (e.g. task-based async tools, MCP Apps) require a future SDK upgrade. Not a violation. |
 
@@ -17,8 +17,8 @@
 
 | Item | Status | Evidence |
 |---|---|---|
-| stdio transport | ✅ | `StdioServerTransport`; logs go to stderr (`console.error`), protocol on stdout — correct per spec |
-| Streamable HTTP | ❌ not offered | Optional transport; fine for a local single-user server. Recommendation R2. |
+| stdio transport | ✅ | `StdioServerTransport`; logs go to stderr (`createLogger`, structured JSON), protocol on stdout — correct per spec |
+| Streamable HTTP | ✅ (v0.4.0, R2 done) | `src/http.ts`: `POST /mcp` (JSON-RPC, SSE responses when streaming), `GET /mcp` (server-initiated SSE), `DELETE /mcp` (session termination), stateful sessions via `mcp-session-id` header, one server instance per session. Enabled with `MCP_HTTP=1`; stdio remains the default. |
 
 ## 3. Tools
 
@@ -38,7 +38,7 @@
 | Secrets not in protocol traffic | ✅ | `API_TOKEN` sent to the trusted local backend only; never exposed as tool output |
 | Confused-deputy surface | ✅ low | Server is a thin read-only proxy; no file system or shell access |
 | Output sanitization | ✅ | JSON passthrough of trusted backend responses |
-| Audit logging | ⚠️ | Only startup logs. Recommendation R3. |
+| Audit logging | ✅ (v0.4.0, R3 done) | Per-request structured JSON logs to stderr (`src/logger.ts`): `tool.call` events (tool name, latency_ms, outcome) with a `requestId`, `http.request` events (method, rpcMethod, session, latency), `http.session.opened/closed`. `LOG_LEVEL` filters (`debug|info|warn|error`). |
 
 ## 5. Baseline defects fixed in this audit
 
@@ -49,6 +49,14 @@
 ## 6. Recommendations
 
 - **R1 (low):** Upgrade `package.json` dependency range from `^1.0.0` to `~1.32.1` to pin the audited SDK line. (Suggested; left as follow-up to avoid churn.)
-- **R2 (medium):** Add Streamable HTTP transport behind a flag if the server will ever be shared remotely; stdio is correct for local use today.
-- **R3 (low):** Add request-level logging (tool name, latency, backend status) to stderr for operability.
+- **R2 (medium): DONE in v0.4.0.** Streamable HTTP transport added behind `MCP_HTTP=1` (`src/http.ts`, `StreamableHTTPServerTransport`, stateful sessions, SSE responses); stdio stays the default for local use.
+- **R3 (low): DONE in v0.4.0.** Request-level structured logging added (`src/logger.ts`): every tool call and HTTP request logged to stderr as JSON with request id, tool/method, latency and outcome; `LOG_LEVEL`-filterable.
 - **R4 (medium):** When the SDK supporting spec `2026-07-28` ships stable, re-run this audit against it.
+
+## 7. v0.4.0 verification (2026-10-23)
+
+- `npx tsc --noEmit`: exit 0.
+- `npm test` (vitest): 36 tests, 4 files, all passing.
+- `npm run test:coverage`: statements 89.0%, branches 72.8%, functions 88.7%, lines 91.2% (above the 80/70 thresholds; `src/index.ts` and `src/types.ts` excluded — process entrypoint and type-only declarations).
+- Smoke: `initialize` over stdio (piped JSON-RPC) → serverInfo `huawei-health 0.4.0`; `initialize` over Streamable HTTP (`POST /mcp`, `Accept: application/json, text/event-stream`) → SSE-framed result + `mcp-session-id` header.
+- Backend suite unchanged: `pytest tests/ -q --cov=src` → 60 passed, 86% coverage.
