@@ -10,9 +10,10 @@ Objective: add Streamable HTTP transport (spec 2026-07-28) alongside stdio, stru
 - S5: PR a main, NO mergear.
 
 ## Tasks
-- T1 (S1,S2,S3): refactor modular + http transport + logger + tests — inline
-- T2 (S4): version bump + docs — inline
-- T3 (S5): PR — inline
+- T1 (S1,S2,S3): DONE — commit 52bb755 (inline)
+- T2 (S4): DONE — commit 52bb755 (inline)
+- T3 (S5): DONE — PR #4 (not merged, per instructions)
 
 ## Log
 - L1 (2026-10-23): verbatim workboard task delegated by Alfred; PR #3 merged, base a216bb9.
+- L2 (2026-10-23): all checks observed: tsc 0, vitest 35 passed, coverage 89/91/73% (stmts/lines/branches), pytest 60 passed 86%, smokes stdio+HTTP OK. PR https://github.com/SabaTech-dev/huawei-health-mcp/pull/4
