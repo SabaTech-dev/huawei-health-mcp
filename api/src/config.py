@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     
     # Cache settings
     cache_ttl_seconds: int = 300  # 5 minutes
+
+    # Resilience settings
+    huawei_max_retries: int = 2  # retries for 429/5xx responses
+    huawei_retry_backoff_seconds: float = 1.0  # exponential backoff base
+    huawei_rate_limit_per_minute: int = 60  # outbound API calls per minute (0 = off)
     
     class Config:
         env_file = ".env"
